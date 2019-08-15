@@ -54,8 +54,9 @@ class ZhiHu:
                 password = self.browser.find_elements_by_name('password')[0]  # 获取password的input标签
                 username.clear()
                 password.clear()
-                username.send_keys('18711790101')
-                password.send_keys('pj409112270')
+                # 账号密码输入
+                username.send_keys('')
+                password.send_keys('')
                 time.sleep(1.5)
                 button = \
                     self.browser.find_elements_by_xpath(
