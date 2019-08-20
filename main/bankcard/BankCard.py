@@ -10,15 +10,16 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+bank_namelist=["icbc","ccb","abc","comm","boc","cmbc","psbc","other"]
 
-def open_bank_url():
+def open_bank_url(bank_name):
     driver = webdriver.Chrome(
         executable_path=r'./chromedriver.exe',
         options=Options())
     wait = WebDriverWait(driver, 10)
     print("打开银行页面")
     try:
-        driver.get('http://www.chakahao.com/cardbin/chakahao_other.html')
+        driver.get(f'http://www.chakahao.com/cardbin/chakahao_{bank_name}.html')
         driver.maximize_window()
         text = wait.until(
             EC.presence_of_element_located((By.CSS_SELECTOR, 'body>center>div:nth-child(4)')))
@@ -32,7 +33,7 @@ def open_bank_url():
                 bank = driver.find_element_by_css_selector(".chalist > p:nth-child(3)")
                 bank_number = driver.find_element_by_css_selector(".chalist > p:nth-child(5)")
                 if bank:
-                    f = open("bank_text.txt", 'a')  # 存储爬取到的银行卡的数据
+                    f = open(f"{bank_name}_bank_text.txt", 'a')  # 存储爬取到的银行卡的数据
                     print(bank.text, bank_number.text)
                     print(bank.text, bank_number.text, file=f)
             except:
@@ -47,4 +48,5 @@ def open_bank_url():
 
 
 if __name__ == '__main__':
-    open_bank_url()
+    for name in bank_namelist:
+        open_bank_url(name)
