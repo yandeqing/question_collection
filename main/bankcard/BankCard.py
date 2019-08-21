@@ -10,7 +10,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-bank_namelist=["icbc","ccb","abc","comm","boc","cmbc","psbc","other"]
+bank_namelist = ["icbc", "ccb", "abc", "comm", "boc", "cmbc", "psbc", "other"]
+
 
 def open_bank_url(bank_name):
     driver = webdriver.Chrome(
@@ -30,21 +31,21 @@ def open_bank_url(bank_name):
             url = 'http://www.chakahao.com/cardbin/html/{0}.html'.format(i)
             driver.get(url)
             try:
-                bank = driver.find_element_by_css_selector(".chalist > p:nth-child(3)")
+                bank = driver.find_element_by_css_selector(".chalist > p:nth-child(4)")
                 bank_number = driver.find_element_by_css_selector(".chalist > p:nth-child(5)")
                 if bank:
                     f = open(f"{bank_name}_bank_text.txt", 'a')  # 存储爬取到的银行卡的数据
                     print(bank.text, bank_number.text)
-                    print(bank.text, bank_number.text, file=f)
+                    print(bank.text, bank_number.text, sep=',', file=f)
+                    f.close()
             except:
-                print(f"发生异常卡号:{i}",file=f)
-                pass
+                f = open(f"{bank_name}_bank_error.txt", 'a')  # 存储爬取到的银行卡的数据
+                print(f"发生异常卡号:{i}", file=f)
+                f.close()
 
         # driver.quit()
     except TimeoutError:
         print("NO")
-
-
 
 
 if __name__ == '__main__':

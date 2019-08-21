@@ -63,9 +63,9 @@ def title_write(worksheet, rows):
     # 生成标题
     for i in range(0, len(rows)):
         col = worksheet.col(i)
-        col.width = 256 * 18
-        if 0 <= i <= 2:
-            worksheet.col(i).width = 256 * 18 * 4
+        col.width = 256 * 26
+        # if 0 <= i <= 2:
+        #     worksheet.col(i).width = 256 * 18 * 4
         style = xlwt.easyxf(
             'font:height 200, name 微软雅黑, colour_index black, bold on;align: horiz center;')
         worksheet.write(0, i, rows[i], style)
@@ -93,6 +93,9 @@ def rows_write(ws, row_x, item):
 
 
 def write_excel(filename, worksheet_name, items):
+    if not os.path.exists(filename):
+        f = open(filename, "w+")
+        f.close()
     '''
     :return:
     '''

@@ -7,7 +7,7 @@
 import os
 
 currentFile = os.path.split(os.path.realpath(__file__))[0]
-proDir = currentFile[:currentFile.find("apitest\\") + len("apitest\\")]
+proDir = currentFile[:currentFile.find("question_collection\\") + len("question_collection\\")]
 
 
 def getProjectRootDir():
