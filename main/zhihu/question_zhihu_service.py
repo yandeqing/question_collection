@@ -47,7 +47,8 @@ class ZhiHu:
             if '知乎 - 有问题，上知乎' == self.browser.title:
                 span_lable = \
                     self.browser.find_elements_by_xpath(
-                        '//div[@class="SignContainer-switch"]/span')[0]
+                        '//div[@class="SignFlow-tabs"]/div')[1]
+                print(span_lable.text)
                 span_lable.click()
                 time.sleep(1.5)
                 username = self.browser.find_elements_by_name('username')[0]  # 获取username的input标签
@@ -55,8 +56,8 @@ class ZhiHu:
                 username.clear()
                 password.clear()
                 # 账号密码输入
-                username.send_keys('')
-                password.send_keys('')
+                username.send_keys('18612205027')
+                password.send_keys('134679285zxc')
                 time.sleep(1.5)
                 button = \
                     self.browser.find_elements_by_xpath(

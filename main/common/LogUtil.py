@@ -122,6 +122,17 @@ class LogUtil:
             log = MyLog.get_log()
             logger = log.get_logger()
             logger.info(msg)
+
+    @staticmethod
+    def info(msg,msg2=None):
+        if debug:
+            log = MyLog.get_log()
+            logger = log.get_logger()
+            if msg2 is not None:
+                logger.info(msg+msg2)
+            else:
+                logger.info(msg)
+
     @staticmethod
     def info_with_notime(msg):
         if debug:

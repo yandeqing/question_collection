@@ -7,7 +7,7 @@
 import os
 
 currentFile = os.path.split(os.path.realpath(__file__))[0]
-proDir = currentFile[:currentFile.find("question_collection\\") + len("question_collection\\")]
+proDir = currentFile[:currentFile.find("question_collection") + len("question_collection")]
 
 
 def getProjectRootDir():
@@ -15,6 +15,14 @@ def getProjectRootDir():
 
 
 def get_full_dir(path, *paths):
+    return os.path.join(proDir, path, *paths)
+
+def create_full_dir(path, *paths):
+    join = os.path.join(proDir, path, *paths)
+    if os.path.exists(join):  # 如果文件存在
+        # 删除文件，可使用以下两种方法。
+        print(f"【create_full_dir().remove path={join}】")
+        remove = os.remove(join)
     return os.path.join(proDir, path, *paths)
 
 
@@ -53,3 +61,6 @@ def getstringfromfile(filepath):
     except Exception as e:
         print(f"{e}")
     return content
+if __name__ == '__main__':
+    exists = os.path.exists(get_full_dir("main","bankcard","zuber_support_bankname.txt"))
+    print(f"【().exists={exists}】")

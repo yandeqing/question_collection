@@ -10,6 +10,7 @@ import re
 
 import requests
 
+from main.bankcard import BankSimplefy
 from main.common import FilePathUtil, excel_util
 from main.common.LogUtil import LogUtil
 
@@ -48,7 +49,6 @@ def generateBankNumbers(file):
     f = open(file)  # 返回一个文件对象
     line = f.readline()  # 调用文件的 readline()方法
     while line:
-        line = f.readline()
         if line:
             try:
                 banknum = {}
@@ -56,57 +56,97 @@ def generateBankNumbers(file):
                 pattern = re.compile("(\d*)开头的银行卡类型是(.*)")
                 res = pattern.search(arr[0]).groups()
                 banknum['prefix'] = res[0]
-                banknum['bankName'] = res[1]
+                banknum['bankName'] = BankSimplefy.simplefyBankName(res[1])
                 pattern = re.compile("银行卡号数字长度为(\d*)位")
                 res = pattern.search(arr[1]).groups()
                 banknum['length'] = res[0]
-                print(f'{banknum}')
+                # print(f'{banknum}')
                 num_generator = cardNum_generator(banknum['prefix'], int(banknum['length']))
                 banknum['bankNumber'] = num_generator
                 valid = luhn.is_valid(num_generator)
                 # banknum['luhn_valid'] = valid
                 # 校验luhn算法
-                print(f'校验luhn算法是否成功:{valid}')
-                try:
-                    url = f'http://elklog.zuker.im/bankcard/?area=false&card_id={num_generator}'
-                    print(url)
-                    result = requests.get(url)
-                    json = result.json()
-                    if json['code'] is 0:
-                        if json['result']:
-                            banknum = {**banknum, **json['result']}
-                            print(f'{banknum}')
-                            banknums.append(banknum)
-                        else:
-                            LogUtil.info(f'{banknum}')
-                            txt = open("error_banknumber.txt", 'a')
-                            print(banknum['prefix'], num_generator, banknum['bankName'], sep=',',
-                                  file=txt)
-                            txt.close()
-                    else:
-                        LogUtil.info(f'{banknum}')
-                        txt = open("error_banknumber.txt", 'a')
-                        print(banknum['prefix'],num_generator,banknum['bankName'],sep=',',  file=txt)
-                        txt.close()
-                except Exception as e:
-                    print(f"{e}")
+                # print(f'校验luhn算法是否成功:{valid}')
+                banknums.append(banknum)
             except Exception as e:
                 LogUtil.info(f"{e}")
+        line = f.readline()
+
+    f.close()
+    return banknums
+
+
+def getBankNumbers(file):
+    from stdnum import luhn
+    banknums = []
+    f = open(file, encoding='utf-8')  # 返回一个文件对象
+    line = f.readline()  # 调用文件的 readline()方法
+    while line:
+        if line:
+            try:
+                banknum = {}
+                arr = line.strip().split(',')
+                # 邮储银行,1000000,绿卡银联标准卡,19,6,622188,1
+                banknum['prefix'] = arr[5]
+                banknum['bankName'] = BankSimplefy.simplefyBankName(arr[0])
+                banknum['length'] = arr[3]
+                # print(f'{banknum}')
+                num_generator = cardNum_generator(banknum['prefix'], int(banknum['length']))
+                banknum['bankNumber'] = num_generator
+                valid = luhn.is_valid(num_generator)
+                # banknum['luhn_valid'] = valid
+                # 校验luhn算法
+                # print(f'校验luhn算法是否成功:{valid}')
+                banknums.append(banknum)
+            except Exception as e:
+                LogUtil.info(f"{e}")
+        line = f.readline()
 
     f.close()
     return banknums
 
 
 if __name__ == '__main__':
-
     numbers = []
     lists = os.listdir('txt')
     for file in lists:
         join = os.path.join("txt", file)
         number = generateBankNumbers(join)
         numbers.extend(number)
-        print(numbers)
 
-    full_dir = FilePathUtil.get_full_dir("main", "bankcard", "banknumbers.xls")
-    excel_util.write_excel(full_dir, 'banknumbers', numbers)
-    # os.system(full_dir)
+    full_dir = FilePathUtil.get_full_dir("main", "bankcard", "bin", "card_bin.txt")
+    number = getBankNumbers(full_dir)
+    numbers.extend(number)
+
+    zuber_numbers = []
+    file = FilePathUtil.get_full_dir("main", "bankcard","result", "zuber_support_bankname.txt")
+    f = open(file)  # 返回一个文件对象
+    lines = f.readlines()  # 调用文件的 readline()方法
+    for line in lines:
+        bankname = line.strip()
+        if bankname:
+            zuber_numbers.append(bankname)
+    f.close()
+
+    banks = []
+    common_txt = open(
+        FilePathUtil.create_full_dir("main", "bankcard", "result", "result_common_bankname.txt"),
+        'a')
+    all_txt = open(
+        FilePathUtil.create_full_dir("main", "bankcard", "result", "result_all_bankname.txt"), 'a')
+    for bank in numbers:
+        bank_name_ =BankSimplefy.simplefyBankName(bank['bankName'])
+        if bank_name_ in zuber_numbers:
+            print(bank_name_, bank['bankNumber'], bank['prefix'], sep=',', file=all_txt)
+            if bank_name_ not in banks:
+                banks.append(bank_name_)
+                print(bank_name_, bank['bankNumber'], bank['prefix'], sep=',', file=common_txt)
+
+    common_txt.close()
+    all_txt.close()
+
+    # full_dir = FilePathUtil.create_full_dir("main", "bankcard", "xls","kaohaowang_banknumbers.xls")
+    # excel_util.write_excel(full_dir, 'banknumbers', numbers_zuber)
+    #
+    # full_dir = FilePathUtil.create_full_dir("main", "bankcard","xls", "banknumbers.xls")
+    # excel_util.write_excel(full_dir, 'banknumbers', numbers)

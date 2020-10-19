@@ -15,6 +15,44 @@ import xlwt
 proDir = FilePathUtil.getProjectRootDir()
 
 
+def get_xls(xlsPath, sheet_name):
+    """
+    get interface data from xls file
+    :return:
+    """
+    cls = []
+    file = xlrd.open_workbook(xlsPath)
+    sheet = file.sheet_by_name(sheet_name)
+    nrows = sheet.nrows
+    for i in range(nrows):
+        if i > 0:
+            cls.append(sheet.row_values(i))
+    return cls
+
+
+def get_xls_heads(xlsPath, sheet_name):
+    """
+    get interface data from xls file
+    :return:
+    """
+    file = xlrd.open_workbook(xlsPath)
+    sheet = file.sheet_by_name(sheet_name)
+    return sheet.row_values(0)
+
+
+def excel2array(xlsPath, sheet_name):
+    arrays = []
+    params_keys = get_xls_heads(xlsPath, sheet_name)
+    print(f"【excel2array().params_keys={params_keys}】")
+    params_values = get_xls(xlsPath, sheet_name)
+    for values in params_values:
+        param = {}
+        for index in range(len(params_keys)):
+            param[params_keys[index]] = values[index]
+        arrays.append(param)
+    return arrays
+
+
 def modify(xlsx_path, sheet_name, case_name, model):
     '''
     :param xlsx_path: "excelCase", "biz_roomCase.xlsx"
@@ -76,9 +114,11 @@ def data_write(ws, data):
         rows_write(ws, num + 1, rows)
 
 
+style = xlwt.easyxf('font:height 200, name 微软雅黑;')  # 字体自定义
+
+
 def rows_write(ws, row_x, item):
     print(f"【rows_write().item={item}】")
-    style = xlwt.easyxf('font:height 200, name 微软雅黑;')  # 字体自定义
     style.alignment.wrap = 1  # 自动换行
     for num, value in enumerate(item):
         value = value if value != None else ''
@@ -114,8 +154,11 @@ def write_excel(filename, worksheet_name, items):
 
 
 if __name__ == '__main__':
-    full_dir = FilePathUtil.get_full_dir("business_service/test.xls")
-    datas = [{'id': 1, 'text': "dsd"},
-             {'id': 2, 'text': "dsd2"},
-             {'id': 3, 'text': "dsd3"}]
-    write_excel(full_dir, 'test', datas)
+    # full_dir = FilePathUtil.get_full_dir("business_service/test.xls")
+    # datas = [{'id': 1, 'text': "dsd"},
+    #          {'id': 2, 'text': "dsd2"},
+    #          {'id': 3, 'text': "dsd3"}]
+    # write_excel(full_dir, 'test', datas)
+    full_dir = FilePathUtil.get_full_dir("main", "bankcard", "id_bankname.xls")
+    array = excel2array(full_dir, "Sheet1")
+    print(f"【main().array={array}】")

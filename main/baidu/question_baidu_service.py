@@ -115,6 +115,6 @@ if __name__ == '__main__':
     filename = date + keywords + "_baiduzhidao.xls"
     excel_util.write_excel(filename=filename, worksheet_name=date, items=items)
     print(f"【main().html=总共有{len(items)}条数据】")
-    for item in items:
-        post = requests.post("http://localhost:8080", json=item)
-        print(f"【main().post={post}】")
+    # for item in items:
+    #     post = requests.post("http://localhost:8088", json=item)
+    #     print(f"【main().post={post}】")
